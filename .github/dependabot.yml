@@ -1,0 +1,10 @@
+# Keep GitHub Actions used in this repo up to date. Domain 5.0 in practice.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]

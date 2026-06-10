@@ -1,0 +1,65 @@
+# ---------------------------------------------------------------------------
+# node-ci.yml - REUSABLE WORKFLOW (Certy GH-200)
+#
+# This is a reusable workflow. It is triggered by `workflow_call`, which means
+# it does NOT run on its own - it only runs when another workflow calls it.
+#
+# How to call it from another repository (caller workflow, job level):
+#
+#   jobs:
+#     ci:
+#       uses: CertyPro/gh200-reusable-workflows-library/.github/workflows/node-ci.yml@v1
+#       with:
+#         node-version: '20'
+#       secrets:
+#         npm-token: ${{ secrets.NPM_TOKEN }}
+#
+# Inputs : node-version (string, default '20')
+# Secrets: npm-token (optional)
+# Outputs: result (string) - 'passed' once the test job finishes.
+# ---------------------------------------------------------------------------
+name: Reusable Node CI
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to set up and test against.'
+        required: false
+        type: string
+        default: '20'
+    secrets:
+      npm-token:
+        description: 'Optional token for installing private npm packages.'
+        required: false
+    outputs:
+      result:
+        description: "Set to 'passed' when the test job completes successfully."
+        value: ${{ jobs.build-and-test.outputs.result }}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.report.outputs.result }}
+    steps:
+      - name: Check out the caller repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.npm-token }}
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Report result
+        id: report
+        run: echo "result=passed" >> "$GITHUB_OUTPUT"

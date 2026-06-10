@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------------------
+# release-notes.yml - REUSABLE WORKFLOW (Certy GH-200)
+#
+# This is a reusable workflow triggered by `workflow_call`. It builds a short
+# release notes string for a given tag, writes it to $GITHUB_OUTPUT at step
+# level, and re-exposes it as a WORKFLOW output so the caller can read it.
+#
+# How to call it and consume the output (caller workflow):
+#
+#   jobs:
+#     notes:
+#       uses: CertyPro/gh200-reusable-workflows-library/.github/workflows/release-notes.yml@v1
+#       with:
+#         tag: v1.4.0
+#
+#     publish:
+#       needs: notes
+#       runs-on: ubuntu-latest
+#       steps:
+#         - run: echo "Notes were ${{ needs.notes.outputs.notes }}"
+#
+# Inputs : tag (string, required)
+# Secrets: none
+# Outputs: notes (string)
+# ---------------------------------------------------------------------------
+name: Reusable Release Notes
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: 'The release tag to generate notes for.'
+        required: true
+        type: string
+    outputs:
+      notes:
+        description: 'A short generated release notes string.'
+        value: ${{ jobs.generate.outputs.notes }}
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    outputs:
+      notes: ${{ steps.build-notes.outputs.notes }}
+    steps:
+      - name: Build release notes
+        id: build-notes
+        run: |
+          NOTES="Release ${{ inputs.tag }} prepared on $(date -u +%Y-%m-%d)."
+          echo "notes=$NOTES" >> "$GITHUB_OUTPUT"
+          echo "Generated notes: $NOTES"

@@ -1,0 +1,44 @@
+# ---------------------------------------------------------------------------
+# lint.yml - REUSABLE WORKFLOW (Certy GH-200)
+#
+# This is a reusable workflow triggered by `workflow_call`. It runs a
+# placeholder lint step inside a configurable working directory. Replace the
+# placeholder command with your real linter (for example `npm run lint`).
+#
+# How to call it from another repository (caller workflow, job level):
+#
+#   jobs:
+#     lint:
+#       uses: CertyPro/gh200-reusable-workflows-library/.github/workflows/lint.yml@v1
+#       with:
+#         working-directory: ./app
+#
+# Inputs : working-directory (string, default '.')
+# Secrets: none
+# Outputs: none
+# ---------------------------------------------------------------------------
+name: Reusable Lint
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Directory the lint step runs in.'
+        required: false
+        type: string
+        default: '.'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the caller repository
+        uses: actions/checkout@v4
+
+      - name: Run lint (placeholder)
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          echo "Linting files in: ${{ inputs.working-directory }}"
+          echo "Replace this placeholder with your real linter, for example:"
+          echo "  npm run lint"
+          echo "Lint stage completed."

@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# label-pr.yml - REUSABLE WORKFLOW (Certy GH-200)
+#
+# This is a reusable workflow triggered by `workflow_call`. It demonstrates
+# setting explicit, least-privilege `permissions` on the GITHUB_TOKEN at job
+# level, then running a simple labelling step.
+#
+# How to call it from another repository (caller workflow, job level):
+#
+#   jobs:
+#     label:
+#       uses: CertyPro/gh200-reusable-workflows-library/.github/workflows/label-pr.yml@v1
+#       with:
+#         label: needs-review
+#
+# Inputs : label (string, default 'needs-review')
+# Secrets: none
+# Outputs: none
+#
+# Note on permissions: a reusable workflow runs with the token permissions
+# granted by the CALLER. Declaring permissions here documents what the
+# workflow needs; the caller must grant at least these.
+# ---------------------------------------------------------------------------
+name: Reusable Label PR
+
+on:
+  workflow_call:
+    inputs:
+      label:
+        description: 'Label name used by the demonstration step.'
+        required: false
+        type: string
+        default: 'needs-review'
+
+# Least-privilege: only the scopes this workflow actually needs.
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply label (placeholder)
+        run: |
+          echo "Would apply the label: ${{ inputs.label }}"
+          echo "Running with pull-requests: write so a real labelling step,"
+          echo "such as actions/github-script, could add the label via the API."
